@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Timeseries Plot</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+    <div id="chart" style="width: 100%; height: 500px;"></div>
+    <div id="chart2" style="width: 100%; height: 500px;"></div>
+    <div id="chart3" style="width: 100%; height: 500px;"></div>
+
+    <script>
+        // Parse the JSON data from Go
+        const data = JSON.parse('{{.}}');
+
+        console.log(data)
+        // Extract time and value arrays
+
+
+        const times = data.tpiData.map(point => new Date(point.date));
+        const ltpi = data.tpiData.map(point => point.ltpi);
+        const mtpi = data.tpiData.map(point => point.mtpi);
+
+        const btc = data.assetData.price
+        
+        const leverage = data.leverageData.map(point => point.price)
+        
+        const spot = data.strategyInfo.spot
+        const leveragePosition = data.strategyInfo.leverage
+        const equity = data.strategyInfo.equity
+
+
+        const rebalSpot = data.btcFuturesOI.spot
+        const rebalLeverage = data.btcFuturesOI.leverage
+        const rebalEquity = data.btcFuturesOI.equity
+
+        
+        // Create the plot
+        Plotly.newPlot('chart', [{
+            x: times,
+            y: ltpi,
+            type: 'scatter',
+            mode: 'lines',
+            title: "LTPI",
+            name: "LTPI",
+            yaxis: 'y1',
+            line: { color: 'blue', width: 0.5 },
+        }, {
+            x: times,
+            y: mtpi,
+            type: 'scatter',
+            mode: 'lines',
+            title: 'MTPI',
+            name: 'MTPI',
+            yaxis: 'y1',
+            line: { color: 'red', width: 0.5 },
+        }, {
+            x: times,
+            y: btc,
+            type: 'scatter',
+            mode: 'lines',
+            title: 'BTC',
+            name: "BTC",
+            yaxis: 'y2',
+            line: { color: '#000000', width: 1 },
+        }, {
+            x: times,
+            y: leverage,
+            type: 'scatter',
+            mode: 'lines',
+            title: 'BTC3X',
+            name: "BTC3XPOL",
+            yaxis: 'y3',
+            line: { color: 'green', width: 1 },
+        }], {
+            title: 'Timeseries Data',
+            // grid: {rows: 3, columns: 1, pattern: 'independent'},
+            xaxis: { title: 'Date' },
+            yaxis: {
+                title: 'Score',
+                side: 'right',
+            },
+            yaxis2: {
+                title: 'Price',
+                overlaying: 'y',
+                side: 'left',
+                showgrid: false,
+                zeroline: false,
+            },
+            yaxis3: {
+                title: "Leverage Token",
+                overlaying: 'y',
+            }
+        },
+
+        );
+
+        Plotly.newPlot('chart2', [{
+            x: times,
+            y: equity,
+            type: 'scatter',
+            mode: 'lines',
+
+            name: "Equity",
+            line: { color: '#000000', width: 1 },
+        }, {
+            x: times,
+            y: spot,
+            type: 'scatter',
+            mode: 'lines',
+            title: 'BTC',
+            name: "Spot",
+            line: { width: 1 },
+        }, {
+            x: times,
+            y: leveragePosition,
+            type: 'scatter',
+            mode: 'lines',
+            title: 'Leverage',
+            name: "Leverage",
+            line: { width: 1 },
+        }], {
+            title: 'Joint TPI Criteria Strategy',
+            xaxis: { title: 'Date' },
+            yaxis: {
+                title: 'Value',
+                side: 'right',
+            }
+        },
+        );
+        
+        Plotly.newPlot('chart3', [{
+            x: times,
+            y: rebalEquity,
+            type: 'scatter',
+            mode: 'lines',
+
+            name: "Equity",
+            line: { color: '#000000', width: 1 },
+        }, {
+            x: times,
+            y: rebalSpot,
+            type: 'scatter',
+            mode: 'lines',
+            title: 'BTC',
+            name: "Spot",
+            line: { width: 1 },
+        }, {
+            x: times,
+            y: rebalLeverage,
+            type: 'scatter',
+            mode: 'lines',
+            title: 'Leverage',
+            name: "Leverage",
+            line: { width: 1 },
+        }], {
+            title: 'Rebalancing Joint TPI Strategy When BTC FOI > +1sd ',
+            xaxis: { title: 'Date' },
+            yaxis: {
+                title: 'Value',
+                side: 'right',
+            }
+        },
+        );
+        
+        
+    </script>
+</body>
+
+</html>
